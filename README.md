@@ -5,6 +5,7 @@ This project is a speech recognition system that converts speech into text using
 ## Dependencies:
 
 This project is using an amazing LLM provided by [IALACOL](https://github.com/chenhunghan/ialacol?tab=readme-ov-file) and [K3S](https://k3s.io/) for containerization.
+To have you LLM running, do not forget to forward your kube svc port `kubectl port-forward svc/llama-2-7b-chat 8000:8000`
 
 - [SpeechRecognition](https://pypi.org/project/SpeechRecognition/)
 - [pydub](https://pypi.org/project/pydub/)
