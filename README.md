@@ -4,6 +4,8 @@ This project is a speech recognition system that converts speech into text using
 
 ## Dependencies:
 
+This project is using an amazing LLM provided by [IALACOL](https://github.com/chenhunghan/ialacol?tab=readme-ov-file) and [K3S](https://k3s.io/) for containerization.
+
 - [SpeechRecognition](https://pypi.org/project/SpeechRecognition/)
 - [pydub](https://pypi.org/project/pydub/)
 - [gtts](https://pypi.org/project/gTTS/)
