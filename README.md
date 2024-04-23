@@ -15,7 +15,7 @@ To have you LLM running, do not forget to forward your kube svc port `kubectl po
 ## Usage:
 
 1. Install the dependencies using `pip install -r requirements.txt`
-2. Run the `main.py` file to start the speech recognition system
+2. Run the `src/llm.py` file to start the speech recognition system
 3. Speak into the microphone to make a request
 4. The LM will generate a response based on your request
 5. The response will be converted into speech using gTTS and played through VLC
