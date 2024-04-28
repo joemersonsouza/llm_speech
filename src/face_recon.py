@@ -1,6 +1,8 @@
 #https://towardsdatascience.com/real-time-face-recognition-an-end-to-end-project-b738bb0f7348
 
+import time
 import cv2
+from face_dataset import process_user_recognition
 from speech import generate_audio, play_audio
 
 maximumFaces = 30
@@ -38,11 +40,20 @@ def test_cam():
 
 def recongnize_face():
     recognizer = cv2.face.LBPHFaceRecognizer_create()
-    recognizer.read(dataCascade)
-
-    font = cv2.FONT_HERSHEY_SIMPLEX
+    try:
+        recognizer.read(dataCascade)
+    except:
+        play_audio(generate_audio(f"Sorry I could not recognize your face, let's do it together"))
+        process_user_recognition()
+        time.sleep(1)
+        recognizer.read(dataCascade)
+    
+    userName = ""
+    with open("data/user.txt", "r") as f:
+        userName = f.read()
+    
     id = 0
-    names = ['None', 'Joe'] 
+    names = ['None', userName] 
     cam = cv2.VideoCapture(0)
     cam.set(3, 640) # set video widht
     cam.set(4, 480) # set video height

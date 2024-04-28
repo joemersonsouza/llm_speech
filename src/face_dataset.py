@@ -2,7 +2,7 @@ import numpy as np
 import cv2
 from PIL import Image
 import os
-from speech import generate_audio, play_audio
+from speech import generate_audio, play_audio, talk
 
 maximumFaces = 30
 faceCascade = cv2.CascadeClassifier('data/haarcascade_frontalface_default.xml')
@@ -12,7 +12,7 @@ facesPath = 'data/face'
 def warn_user(message):
     play_audio(generate_audio(message))
 
-def generate_user_images():
+def generate_user_images(userName):
     cam = cv2.VideoCapture(0)
     cam.set(3, 640) # set video width
     cam.set(4, 480) # set video height
@@ -28,7 +28,7 @@ def generate_user_images():
             cv2.rectangle(img, (x,y), (x+w,y+h), (255,0,0), 2)     
             count += 1
             # Save the captured image into the datasets folder
-            cv2.imwrite(f"{facesPath}/User.{face_id}.{count}.jpg", gray[y:y+h,x:x+w])
+            cv2.imwrite(f"{facesPath}/{userName}.{face_id}.{count}.jpg", gray[y:y+h,x:x+w])
             cv2.imshow('image', img)
             if(count == maximumFaces / 2):
                 warn_user("You are doing a great job. I'm close to the end of the process")
@@ -61,9 +61,20 @@ def face_dataset_train():
     # Print the numer of faces trained and end program
     print("\n [INFO] {0} faces trained. Exiting Program".format(len(np.unique(ids))))
 
+def get_userName():
+    userName = ""
+    while userName == "":
+        play_audio(generate_audio("Say your name"))
+        userName = talk()
+    return userName
+
+
 def process_user_recognition():
-    warn_user("Initializing face capture. Look the camera, move your head, smile, you are being recorded")
-    generate_user_images()
+    userName = get_userName()
+    warn_user(f"Hello {userName} I'm initializing face capture. Look the camera, move your head, smile, you are being recorded")
+    generate_user_images(userName)
     warn_user("Amazing work, now, let me understand you better")
     face_dataset_train()
     warn_user("I'm done, thank you for your time")
+    with open("data/user.txt", "w") as f:
+        f.write(userName)

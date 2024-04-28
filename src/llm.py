@@ -1,16 +1,18 @@
 import requests
 from gtts import gTTS
-import speech_recognition as sr
 import vlc
 import os
 import time
 from face_recon import recongnize_face
 import threading
 
+from speech import talk
+
 url = "http://localhost:8000/v1/chat/completions"
 language = "en"
 DONE = 6
 player = vlc.MediaPlayer()
+waitingLLM = False
 
 # This method is used to do a request to the LLM API
 # You can change the MAX_TOKENS to change the length of the response
@@ -44,49 +46,34 @@ def listen(question):
     response = get_response(question)
     audio = generate_audio(response)
     play_audio(audio)
-
-# This method is used to listen to the user's input
-def talk():
-    recognizer = sr.Recognizer()
-    with sr.Microphone() as mic:
-        recognizer.adjust_for_ambient_noise(mic, duration=0.2)
-        speach = recognizer.listen(mic)
-        speachToText = recognizer.recognize_google(speach).lower()
-        print(speachToText)
-        return speachToText
-
-def get_userName(): # TODO: Use this function to get the user's name and send to the face recognition
-    userName = ""
-    while userName == "":
-        play_audio(generate_audio("What is your name?"))
-        userName = talk()
+    waitingLLM = False
     
-
 # You can stop the program by saying "stop"
 if __name__ == "__main__":
     errorMessage = generate_audio("Sorry I didn't get that", "errorMessage")
-    okMessage = generate_audio("Ok, wait a minute", "okMessage")
-    
-    t = threading.Timer(0, recongnize_face)
-    t.start()
+    okMessage = generate_audio("hummmm", "okMessage")
+    faceView = threading.Timer(0, recongnize_face)
+    faceView.start()
 
     while True:
         try:
             text = talk()
             if not text:
-                play_audio(errorMessage)
                 time.sleep(1)
             elif text == "stop":
-                if(player.is_playing()): # TODO: Make the listening asychronous and stop the player when the user says "stop"
+                if(player.is_playing()):
                     player.stop()
                 else:
-                    t.cancel()
+                    play_audio(generate_audio("Press 'ESC' to exit"))
                     break
             else:
+                if(waitingLLM): continue
+
+                waitingLLM = True
                 play_audio(okMessage)
-                listen(text)
+                llm = threading.Timer(0, listen, args=(text,))
+                llm.start()
         except Exception as e:
-            play_audio(errorMessage)
             print(e)
             time.sleep(1)
 
